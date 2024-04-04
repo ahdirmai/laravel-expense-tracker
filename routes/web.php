@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Admin\UsersAccountController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\User\DashboardController;
+use App\Http\Controllers\user\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -38,9 +40,10 @@ Route::middleware('auth')->group(function () {
 
 
     Route::group(['middleware' => 'role:user'], function () {
-        Route::get('/', function () {
-            return view('user.dashboard.index');
-        })->name('user.dashboard.index');
+        Route::get('/', [DashboardController::class, 'index'])->name('user.dashboard.index');
+
+        // Transaction
+        Route::post('/transaction', [TransactionController::class, 'store'])->name('transaction.store');
     });
 });
 
