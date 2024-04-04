@@ -21,7 +21,7 @@ return new class extends Migration
             $table->date('date');
             $table->double('amount');
             $table->string('description')->nullable();
-            $table->enum('type', ['expense', 'income']);
+            // $table->enum('type', ['expense', 'income']);
             $table->string('attachment')->nullable();
             $table->timestamps();
         });
