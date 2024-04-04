@@ -19,9 +19,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Route::get('/dashboard', function () {
+//     return view('dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -34,6 +34,13 @@ Route::middleware('auth')->group(function () {
         })->name('admin.dashboard');
 
         Route::get('/admin/users', [UsersAccountController::class, 'index'])->name('admin.users.index');
+    });
+
+
+    Route::group(['middleware' => 'role:user'], function () {
+        Route::get('/', function () {
+            return view('user.dashboard.index');
+        })->name('user.dashboard.index');
     });
 });
 
