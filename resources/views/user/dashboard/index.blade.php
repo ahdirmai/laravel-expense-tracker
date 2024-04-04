@@ -59,6 +59,22 @@
                             </button>
                     </div>
                 </div>
+                {{-- any error --}}
+
+                @if($errors->any())
+                <div class="flex items-center p-4 text-sm bg-red-50 dark:bg-gray-800 dark:text-red-400 " role="alert">
+                    <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                        fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                    </svg>
+                    <span class="sr-only">Success</span>
+                    <div>
+                        <span class="font-medium"> {{$errors->all(':message') }}
+                    </div>
+                </div>
+                @endif
+
                 <div class="rounded-lg border bg-card text-card-foreground shadow-sm" data-v0-t="card">
                     <div class="p-0">
                         <div class="relative w-full overflow-auto">
@@ -68,110 +84,82 @@
                                         class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
                                         <th
                                             class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 w-12">
-                                            ID</th>
+                                            No</th>
                                         <th
                                             class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 hidden md:table-cell">
                                             Date</th>
                                         <th
                                             class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0">
-                                            Amount</th>
+                                            Type</th>
                                         <th
                                             class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 hidden md:table-cell">
                                             Category
                                         </th>
                                         <th
                                             class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 hidden md:table-cell">
+                                            Amount
+                                        </th>
+
+                                        <th
+                                            class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 hidden md:table-cell">
                                             Description
+                                        </th>
+
+                                        <th
+                                            class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0 hidden md:table-cell">
+                                            Action
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody class="[&amp;_tr:last-child]:border-0">
+                                    @foreach($transactions as $transaction)
+
                                     <tr
                                         class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                                        <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 font-semibold">001
+                                        <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 font-semibold">
+                                            {{ $loop->iteration }}
                                         </td>
                                         <td
                                             class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 hidden md:table-cell">
-                                            2023-01-15 10:23 AM
+                                            {{ $transaction->date }}
                                         </td>
-                                        <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">$250.00</td>
+                                        <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">{{
+                                            ucfirst($transaction->category->type)}}</td>
                                         <td
                                             class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 hidden md:table-cell">
-                                            Food
+                                            {{$transaction->category->name}}
                                         </td>
                                         <td
                                             class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 hidden md:table-cell">
-                                            Breakfast at the cafe
+                                            ${{ $transaction->amount }}
+                                        </td>
+
+                                        <td
+                                            class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 hidden md:table-cell">
+                                            ${{ $transaction->description }}
+                                        </td>
+
+                                        {{-- action (edit,delete,show proof (if any)) --}}
+                                        <td
+                                            class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 hidden md:table-cell">
+                                            <div class="flex items center gap-2">
+                                                <button class="text-blue-500 edit-button" data-modal-target="crud-modal"
+                                                    data-modal-toggle="crud-modal" data-transaction={{
+                                                    json_encode($transaction) }} data-categories={{
+                                                    json_encode($categories) }} data-url={{
+                                                    route('transaction.update',$transaction->id)
+                                                    }}>
+                                                    Edit</button>
+                                                <button class="text-red-500 delete-button"
+                                                    data-modal-target="delete-modal" data-modal-toggle="delete-modal"
+                                                    data-url={{ route('transaction.destroy',$transaction->id)
+                                                    }}>Delete</button>
+
+                                                <a href="{{ asset('storage/' . $transaction->proof) }}"
+                                                    class="text-green-500">Show Proof</a>
                                         </td>
                                     </tr>
-                                    <tr
-                                        class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                                        <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 font-semibold">002
-                                        </td>
-                                        <td
-                                            class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 hidden md:table-cell">
-                                            2023-01-15 10:23 AM
-                                        </td>
-                                        <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">$150.00</td>
-                                        <td
-                                            class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 hidden md:table-cell">
-                                            Travel</td>
-                                        <td
-                                            class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 hidden md:table-cell">
-                                            Metro ticket
-                                        </td>
-                                    </tr>
-                                    <tr
-                                        class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                                        <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 font-semibold">003
-                                        </td>
-                                        <td
-                                            class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 hidden md:table-cell">
-                                            2023-01-15 10:23 AM
-                                        </td>
-                                        <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">$350.00</td>
-                                        <td
-                                            class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 hidden md:table-cell">
-                                            Shopping</td>
-                                        <td
-                                            class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 hidden md:table-cell">
-                                            T-shirt from the mall
-                                        </td>
-                                    </tr>
-                                    <tr
-                                        class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                                        <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 font-semibold">004
-                                        </td>
-                                        <td
-                                            class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 hidden md:table-cell">
-                                            2023-01-15 10:23 AM
-                                        </td>
-                                        <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">$450.00</td>
-                                        <td
-                                            class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 hidden md:table-cell">
-                                            Bills</td>
-                                        <td
-                                            class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 hidden md:table-cell">
-                                            Electricity bill
-                                        </td>
-                                    </tr>
-                                    <tr
-                                        class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                                        <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 font-semibold">005
-                                        </td>
-                                        <td
-                                            class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 hidden md:table-cell">
-                                            2023-01-15 10:23 AM
-                                        </td>
-                                        <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">$550.00</td>
-                                        <td
-                                            class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 hidden md:table-cell">
-                                            Others</td>
-                                        <td
-                                            class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 hidden md:table-cell">
-                                            Miscellaneous
-                                        </td>
-                                    </tr>
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -187,139 +175,211 @@
 
     {{-- Modal Section --}}
     {{-- Add Record Expanse Modal --}}
-
     @push('modal-section')
-    <div id="crud-modal" tabindex="-1" aria-hidden="true"
-        class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-        <div class="relative p-4 w-full max-w-md max-h-full">
-            <!-- Modal content -->
-            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                <!-- Modal header -->
-                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                        Create New Transaction
-                    </h3>
-                    <button type="button"
-                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                        data-modal-toggle="crud-modal">
-                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                            viewBox="0 0 14 14">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                        </svg>
-                        <span class="sr-only">Close modal</span>
-                    </button>
-                </div>
-                <!-- Modal body -->
-                <form class="p-4 md:p-5">
-                    <div class="grid gap-4 mb-4 grid-cols-2">
-                        {{-- Date --}}
-                        <div class="col-span-2">
-                            <div class="relative max-w-sm">
-                                <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
-                                        xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                        <path
-                                            d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
-                                    </svg>
-                                </div>
-                                <input datepicker datepicker-buttons datepicker-autoselect-today type="text"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                    placeholder="Select date">
-                            </div>
-                        </div>
-                        {{-- End Date --}}
-
-                        {{-- Type --}}
-
-                        {{-- End Type --}}
-
-                        {{-- categories --}}
-                        <div class="col-span-2">
-                            <label for="type"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Type</label>
-                            <select id="type" onchange="changeCategoryOptions()"
-                                class=" bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                <option value="expense">Expense</option>
-                                <option value="income">Income</option>
-                            </select>
-                        </div>
-
-                        <div class="col-span-2">
-                            <label for="category"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Category</label>
-                            <select id="category"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                <option>Select a type first</option>
-                            </select>
-                        </div>
-                        {{-- End Categories --}}
-
-                        {{-- Amount --}}
-                        <div class="col-span-2">
-                            <label for="amount"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Amount</label>
-                            <input type="number" name="amount" id="amount"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                                placeholder="$2999" required="">
-                        </div>
-                        {{-- End Amount --}}
-
-
-
-                        <div class="col-span-2">
-                            <label for="description"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Product
-                                Description</label>
-                            <textarea id="description" rows="4"
-                                class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                placeholder="Write product description here"></textarea>
-                        </div>
-                    </div>
-                    <button type="submit"
-                        class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                        <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd"
-                                d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                                clip-rule="evenodd"></path>
-                        </svg>
-                        Add new Transaction
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
+    @include('user.dashboard.modals.crud-transaction')
+    @include('user.dashboard.modals.delete-comfirmation')
+    @include('user.dashboard.modals.edit-transaction')
     @endpush
     {{-- End --}}
 
     @push('scripts')
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+        // Retrieve categories from the data-categories attribute
+        var categoriesData = document.getElementById("type").getAttribute("data-categories");
+        var categories = JSON.parse(categoriesData);
+
+        // Function to change category options based on the selected type
         function changeCategoryOptions() {
-                            var typeSelect = document.getElementById("type");
-                            var categorySelect = document.getElementById("category");
-                            var selectedType = typeSelect.value;
-                            categorySelect.innerHTML = "";
+            var typeSelect = document.getElementById("type");
+            var categorySelect = document.getElementById("category");
+            var selectedType = typeSelect.value;
+            categorySelect.innerHTML = "";
 
-                            if (selectedType === "expense") {
-                                var expenseCategories = ["Food", "Travel", "Shopping", "Bills", "Others"];
-                                expenseCategories.forEach(function (category) {
-                                    var option = document.createElement("option");
-                                    option.text = category;
-                                    categorySelect.add(option);
-                                });
-                            } else if (selectedType === "income") {
-                                var incomeCategories = ["Salary", "Freelance", "Investment", "Gift", "Other"];
-                                incomeCategories.forEach(function (category) {
-                                    var option = document.createElement("option");
-                                    option.text = category;
-                                    categorySelect.add(option);
-                                });
-                            }
-                        }
+            if (selectedType === "expense") {
+                categories.expense.forEach(function(category) {
+                    var option = document.createElement("option");
+                    option.text = category.name;
+                    option.value = category.id;
+                    categorySelect.add(option);
+                });
+            } else if (selectedType === "income") {
+                categories.income.forEach(function(category) {
+                    var option = document.createElement("option");
+                    option.text = category.name;
+                    option.value = category.id;
+                    categorySelect.add(option);
+                });
+            }
+        }
 
-                        // Panggil fungsi pertama kali untuk memastikan opsi yang benar ditampilkan saat halaman dimuat
-                        changeCategoryOptions();
+        // Call the function to set initial category options
+        changeCategoryOptions();
+
+        // Add event listener to type select element
+        var typeSelect = document.getElementById("type");
+        typeSelect.addEventListener("change", function() {
+            changeCategoryOptions();
+        });
+    });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Mendapatkan elemen formulir penghapusan
+            var deleteForm = document.getElementById("delete-form");
+
+            // Menambahkan event listener ke semua tombol hapus dengan kelas .delete-button
+            var deleteButtons = document.querySelectorAll(".delete-button");
+            deleteButtons.forEach(function(button) {
+                button.addEventListener("click", function(event) {
+                    // Mendapatkan URL dari atribut data-url pada tombol yang diklik
+                    var url = button.getAttribute("data-url");
+
+                    // Mengubah aksi formulir penghapusan menjadi URL yang didapatkan
+                    deleteForm.action = url;
+
+                    // Tampilkan modal penghapusan
+                    var deleteModal = document.getElementById("delete-modal");
+                    deleteModal.classList.remove("hidden");
+                    deleteModal.setAttribute("aria-hidden", "false");
+                });
+            });
+        });
+    </script>
+
+    <script>
+        // Fungsi untuk menampilkan data transaksi pengguna di modal CRUD
+        function renderTransactionData(transaction) {
+        var modal = document.getElementById("crud-modal");
+        var typeSelect = modal.querySelector("#type");
+        var categorySelect = modal.querySelector("#category");
+        var amountInput = modal.querySelector("#amount");
+        var descriptionTextarea = modal.querySelector("#description");
+        var dateInput = modal.querySelector("#date"); // Menambahkan ini untuk mengakses input tanggal
+
+        // Set input values with transaction data
+        typeSelect.value = transaction.category.type;
+        amountInput.value = transaction.amount;
+        descriptionTextarea.value = transaction.description;
+        dateInput.value = transaction.date; // Mengatur nilai input tanggal
+
+        // Parse categories data from data-categories attribute
+        var categories = JSON.parse(typeSelect.getAttribute("data-categories"));
+
+        // console.log(transaction);
+
+        // Check if categories data is properly parsed and transaction type exists
+        if (categories && transaction) {
+        categorySelect.innerHTML = "";
+
+        // changeCategoryOptions(categories);
+        // Populate category options based on transaction type
+        if (transaction.category.type === "expense") {
+            categories.expense.forEach(function (category) {
+            var option = document.createElement("option");
+            option.text = category.name;
+            option.value = category.id;
+            categorySelect.add(option);
+            });
+        } else if (transaction.category.type === "income") {
+            categories.income.forEach(function (category) {
+            var option = document.createElement("option");
+            option.text = category.name;
+            option.value = category.id;
+            categorySelect.add(option);
+            });
+        }
+        // Set selected category
+        categorySelect.value = transaction.category.id;
+        } else {
+        console.error("Categories data or transaction type is undefined:", categories, transaction.type);
+        }
+
+    }
+
+        // Rest of your code remains unchanged
+
+        // Fungsi untuk mengubah metode dan tindakan form menjadi PUT dan URL yang diberikan
+        function prepareFormForUpdate(url) {
+            var method = document.querySelector("#crud-modal form input[name='_method']");
+            var button = document.querySelector("#submit-button");
+// console.log(button);
+            button.innerHTML = "Update";
+            console.log(method??'not found');
+            if (method) {
+                method.value = "PUT";
+            } else {
+                var methodInput = document.createElement("input");
+                methodInput.setAttribute("type", "hidden");
+                methodInput.setAttribute("name", "_method");
+                methodInput.setAttribute("value", "PUT");
+                var form = document.querySelector("#crud-modal form");
+                form.appendChild(methodInput);
+            }
+
+            var form = document.querySelector("#crud-modal form");
+            // form.setAttribute("method", "PUT");
+            form.setAttribute("action", url);
+        }
+
+        // Mengatur event listener untuk tombol edit
+        var editButtons = document.querySelectorAll(".edit-button");
+        editButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                var modalTarget = button.getAttribute("data-modal-target");
+                var transactionData = JSON.parse(button.getAttribute("data-transaction"));
+                var url = button.getAttribute("data-url");
+
+                // Memanggil fungsi untuk menampilkan data transaksi di modal CRUD
+                renderTransactionData(transactionData);
+
+                // Memanggil fungsi untuk mengubah metode dan tindakan form menjadi PUT dan URL yang diberikan
+                prepareFormForUpdate(url);
+
+                // Menampilkan modal
+                var modal = document.getElementById(modalTarget);
+                modal.classList.remove("hidden");
+            });
+        });
+
+        // Mengatur event listener untuk tombol close modal
+        var closeModalButtons = document.querySelectorAll("[data-modal-toggle='crud-modal']");
+        closeModalButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                var modalTarget = button.getAttribute("data-modal-toggle");
+                var modal = document.getElementById(modalTarget);
+                modal.classList.add("hidden");
+            });
+        });
+    </script>
+
+    <script>
+        // Fungsi untuk menyiapkan form untuk menambahkan transaksi baru
+        function prepareFormForAdd() {
+            var method = document.querySelector("#crud-modal form input[name='_method']");
+            if (method) {
+                method.remove(); // Hapus _method input jika sudah ada
+            }
+
+            var form = document.querySelector("#crud-modal form");
+            form.reset(); // Reset nilai input di dalam form
+            var button = document.querySelector("#submit-button");
+
+            // console.log(button);
+            button.innerHTML = "Create";
+
+            // Atur aksi form menjadi URL yang sesuai untuk menambahkan transaksi baru
+            form.setAttribute("action", "{{ route('transaction.store') }}");
+        }
+
+        // Tambahkan event listener ke tombol "Add Transaction"
+        var addButton = document.querySelector("[data-modal-target='crud-modal']");
+        addButton.addEventListener("click", function() {
+            prepareFormForAdd(); // Panggil fungsi untuk menyiapkan form
+            var modal = document.getElementById("crud-modal");
+            modal.classList.remove("hidden"); // Tampilkan modal
+        });
     </script>
     @endpush
 </x-app-layout>

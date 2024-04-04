@@ -44,6 +44,10 @@ Route::middleware('auth')->group(function () {
 
         // Transaction
         Route::post('/transaction', [TransactionController::class, 'store'])->name('transaction.store');
+        Route::get('/transaction/{id}', [TransactionController::class, 'edit'])->name('transaction.edit');
+        Route::PUT('/transaction/{id}', [TransactionController::class, 'update'])->name('transaction.update');
+        Route::DELETE('/transaction/{id}', [TransactionController::class, 'destroy'])->name('transaction.destroy');
+        Route::GET('/transaction/{id}/image', [TransactionController::class, 'getImage'])->name('transaction.get-image');
     });
 });
 
