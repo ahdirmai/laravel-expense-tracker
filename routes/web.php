@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Admin\UsersAccountController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\User\DashboardController;
+use App\Http\Controllers\user\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,9 +21,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Route::get('/dashboard', function () {
+//     return view('dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -34,6 +36,18 @@ Route::middleware('auth')->group(function () {
         })->name('admin.dashboard');
 
         Route::get('/admin/users', [UsersAccountController::class, 'index'])->name('admin.users.index');
+    });
+
+
+    Route::group(['middleware' => 'role:user'], function () {
+        Route::get('/', [DashboardController::class, 'index'])->name('user.dashboard.index');
+
+        // Transaction
+        Route::post('/transaction', [TransactionController::class, 'store'])->name('transaction.store');
+        Route::get('/transaction/{id}', [TransactionController::class, 'edit'])->name('transaction.edit');
+        Route::PUT('/transaction/{id}', [TransactionController::class, 'update'])->name('transaction.update');
+        Route::DELETE('/transaction/{id}', [TransactionController::class, 'destroy'])->name('transaction.destroy');
+        Route::GET('/transaction/{id}/image', [TransactionController::class, 'getImage'])->name('transaction.get-image');
     });
 });
 
