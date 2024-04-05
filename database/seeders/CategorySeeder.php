@@ -27,7 +27,7 @@ class CategorySeeder extends Seeder
             Category::create(
                 [
                     'name' => $category,
-                    'slug' => strtolower($category),
+                    // 'slug' => strtolower($category) . '-' . "e",
                     'type' => 'expense'
                 ]
             );
@@ -44,7 +44,7 @@ class CategorySeeder extends Seeder
             Category::create(
                 [
                     'name' => $category,
-                    'slug' => strtolower($category),
+                    // 'slug' => strtolower($category) . '-' . "i",
                     'type' => 'income'
                 ]
             );

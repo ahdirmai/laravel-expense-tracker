@@ -13,11 +13,12 @@
                         <div class="grid gap-2 md:grid-cols-2">
                             <div class="flex flex-col gap-1">
                                 <h2 class="text-base font-semibold">Total Spent</h2>
-                                <h3 class="text-2xl font-bold">$2,345.67</h3>
+                                <h3 class="text-2xl font-bold">{{ $currency = Number::currency($sum['expense'], in:
+                                    'IDR') }}</h3>
                             </div>
                             <div class="flex flex-col gap-1">
-                                <h2 class="text-base font-semibold">This Month</h2>
-                                <h3 class="text-2xl font-bold">$1,234.56</h3>
+                                {{-- <h2 class="text-base font-semibold">This Month</h2>
+                                <h3 class="text-2xl font-bold">$1,234.56</h3> --}}
                             </div>
                         </div>
                         <div class="flex items-center gap-4"><button
@@ -40,23 +41,44 @@
                         <h3 class="text-2xl font-semibold whitespace-nowrap leading-none tracking-tight">Expense
                             Categories</h3>
                         <p class="text-sm text-muted-foreground">
-                            Total expenses by category for the last 6 months
+                            {{-- Total expenses by category for the last 6 months --}}
                         </p>
                     </div>
                     <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-3 md:flex">
+
+                        {{-- select option default : show all. Income, Expense --}}
+                        <select id="filter-type" name="type" data-categories={{ json_encode($categories) }}
+                            class=" bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg
+                                                    focus:ring-blue-500 focus:border-blue-500 block w-full {{ !$filter_type ?" md:w-1/4":"" }} p-2.5 dark:bg-gray-700 dark:border-gray-600
+                            dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500
+                            dark:focus:border-blue-500">
+                            <option value="all" @selected( $filter_type=='all' )>Show All</option>
+                            <option value="expense" @selected( $filter_type=='expense' )>Expense</option>
+                            <option value="income" @selected( $filter_type=='income' )>Income</option>
+                        </select>
+
+                        @if ($filter_type)
+                        @foreach($categories[$filter_type] as $category)
                         <button
                             class="flex items-center justify-center w-full whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
-                            Show All
+                            {{ $category->name }}
                         </button>
-                        @for($i = 0; $i < 4; $i++) <button
-                            class="flex items-center justify-center w-full whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
-                            Category {{ $i + 1 }}
-                            </button>
-                            @endfor
-                            <button
-                                class="flex items-center justify-center  whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
-                                + Add Category
-                            </button>
+                        @endforeach
+                        @endif
+
+
+
+                        {{-- button filter --}}
+
+
+
+
+                        <button
+                            class="flex items-center justify-center  whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+                            + Add Category
+                        </button>
+
+
                     </div>
                 </div>
                 {{-- any error --}}
@@ -75,7 +97,7 @@
                 </div>
                 @endif
 
-                <div class="rounded-lg border bg-card text-card-foreground shadow-sm" data-v0-t="card">
+                <div class="rounded-lg border bg-card text-card-foreground shadow-sm hidden md:block" data-v0-t="card">
                     <div class="p-0">
                         <div class="relative w-full overflow-auto">
                             <table class="w-full caption-bottom text-sm">
@@ -178,11 +200,28 @@
     @push('modal-section')
     @include('user.dashboard.modals.crud-transaction')
     @include('user.dashboard.modals.delete-comfirmation')
-    @include('user.dashboard.modals.edit-transaction')
+    {{-- @include('user.dashboard.modals.edit-transaction') --}}
     @endpush
     {{-- End --}}
 
     @push('scripts')
+
+    {{-- request when select with id filter-select get selected, send request for filter --}}
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var filterSelect = document.getElementById("filter-type");
+            filterSelect.addEventListener("change", function() {
+                var selectedType = filterSelect.value;
+                var url = "{{ route('user.dashboard.index') }}";
+                if (selectedType !== "all") {
+                    url += "?type=" + selectedType;
+                }
+                window.location.href = url;
+            });
+        });
+    </script>
+
+
     <script>
         document.addEventListener("DOMContentLoaded", function() {
         // Retrieve categories from the data-categories attribute
@@ -296,7 +335,7 @@
         console.error("Categories data or transaction type is undefined:", categories, transaction.type);
         }
 
-    }
+        }
 
         // Rest of your code remains unchanged
 
@@ -304,7 +343,7 @@
         function prepareFormForUpdate(url) {
             var method = document.querySelector("#crud-modal form input[name='_method']");
             var button = document.querySelector("#submit-button");
-// console.log(button);
+        // console.log(button);
             button.innerHTML = "Update";
             console.log(method??'not found');
             if (method) {
@@ -381,5 +420,6 @@
             modal.classList.remove("hidden"); // Tampilkan modal
         });
     </script>
+
     @endpush
 </x-app-layout>
